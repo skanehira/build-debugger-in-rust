@@ -143,7 +143,7 @@ impl<'a> Debugger<'a> {
 
         self.set_pc(pc)?;
 
-        self.pritn_source_code()?;
+        self.print_source_code()?;
 
         Ok(())
     }
@@ -177,7 +177,7 @@ impl<'a> Debugger<'a> {
         Ok(())
     }
 
-    fn pritn_source_code(&self) -> Result<()> {
+    fn print_source_code(&self) -> Result<()> {
         let pc = self.get_pc()?;
 
         if let Some((file, line)) = self.locator.get_source_location(pc)? {
