@@ -1,5 +1,5 @@
 use anyhow::Result;
-use build_debugger_in_rust::{debugger, error::DebuggerError};
+use build_debugger_in_rust::debugger;
 use rustyline::{error::ReadlineError, DefaultEditor};
 
 fn main() -> Result<()> {
@@ -24,41 +24,10 @@ fn main() -> Result<()> {
 
                 match line.trim() {
                     "quit" | "exit" => break,
-                    "c" => match debugger.cont() {
-                        Ok(_) => {}
-                        Err(e) => {
-                            if let Some(debug_err) = e.downcast_ref::<DebuggerError>() {
-                                match debug_err {
-                                    DebuggerError::Finished => {}
-                                    DebuggerError::NoChildProcess => {
-                                        eprintln!("No child process");
-                                    }
-                                    DebuggerError::SigIll => {
-                                        eprintln!("SIGILL received");
-                                    }
-                                }
-                            } else {
-                                eprintln!("{}", e);
-                            }
-                            break;
-                        }
-                    },
                     _ => {
-                        let mut parts = line.split(" ");
-                        let Some(cmd) = parts.next() else {
-                            continue;
+                        if do_command(&mut debugger, &line).is_err() {
+                            break;
                         };
-                        let args = parts.collect::<Vec<_>>();
-                        match cmd {
-                            "b" => {
-                                if args.len() != 1 {
-                                    println!("Usage: b <address>");
-                                    continue;
-                                }
-                                debugger.set_breakpoint(args[0])?
-                            }
-                            _ => println!("Unknown command: {}", cmd),
-                        }
                     }
                 }
             }
@@ -76,4 +45,28 @@ fn main() -> Result<()> {
     rl.save_history("history.txt")?;
 
     Ok(())
+}
+
+fn do_command(debugger: &mut debugger::Debugger, line: &str) -> Result<()> {
+    match line {
+        "c" => debugger.cont(),
+        _ => {
+            let mut parts = line.split(" ");
+            let Some(cmd) = parts.next() else {
+                return Ok(());
+            };
+            let args = parts.collect::<Vec<_>>();
+            match cmd {
+                "b" => {
+                    if args.len() != 1 {
+                        println!("Usage: b <address>");
+                        return Ok(());
+                    }
+                    debugger.set_breakpoint(args[0])?
+                }
+                _ => println!("Unknown command: {}", cmd),
+            }
+            Ok(())
+        }
+    }
 }

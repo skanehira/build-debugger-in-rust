@@ -27,8 +27,16 @@ impl BreakPoint {
     pub fn enable(&mut self) -> Result<()> {
         let data = ptrace::read(self.pid, self.addr)?;
 
-        self.original_instruction = data.to_ne_bytes();
+        self.original_instruction = data.to_le_bytes();
 
+        // `data & !0xff`の部分
+        //          data:     = XXXX XXXX XXXX XXXX  (元の命令)
+        //          !0xff:    = 1111 1111 0000 0000  (!でビット反転)
+        //                    = XXXX XXXX 0000 0000  (下位8ビットをクリア)
+        // `| 0xcc`の部分
+        //  data & !0xff:     = XXXX XXXX 0000 0000  (下位8ビットが0)
+        //          0xcc:     = 0000 0000 1100 1100
+        //                    = XXXX XXXX 1100 1100  (下位8ビットにint3命令をセット)
         let new_data = (data & !0xff) | 0xcc;
 
         ptrace::write(self.pid, self.addr, new_data)?;
