@@ -24,9 +24,9 @@ pub fn print_source_code(r: impl Read, current_line: usize) -> Result<()> {
 
         let line = line?;
         let bytes = if read_line == current_line {
-            format!("-> {:4}: {}\n", read_line, line)
+            format!("-> {:1}: {}\n", read_line, line)
         } else {
-            format!("   {:4}: {}\n", read_line, line)
+            format!("   {:1}: {}\n", read_line, line)
         };
 
         bw.write(bytes.as_bytes())?;
