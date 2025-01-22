@@ -25,9 +25,13 @@ fn main() -> Result<()> {
                 match line.trim() {
                     "quit" | "exit" => break,
                     _ => {
-                        if do_command(&mut debugger, &line).is_err() {
-                            break;
-                        };
+                        match do_command(&mut debugger, &line) {
+                            Ok(_) => {}
+                            Err(e) => {
+                                println!("{}", e);
+                                break;
+                            }
+                        }
                     }
                 }
             }
