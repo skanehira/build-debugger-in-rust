@@ -41,7 +41,6 @@ fn main() -> Result<()> {
         }
     }
 
-    // 履歴を保存
     rl.save_history("history.txt")?;
 
     Ok(())

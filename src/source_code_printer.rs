@@ -1,5 +1,5 @@
 use anyhow::Result;
-use std::io::{stdout, BufRead as _, BufReader, BufWriter, Read, Write as _};
+use std::io::{self, BufRead as _, BufReader, BufWriter, Read, Write as _};
 
 static LINE_RANGE: usize = 5;
 
@@ -10,7 +10,7 @@ pub fn print_source_code(r: impl Read, current_line: usize) -> Result<()> {
     }
     let end_line = current_line + LINE_RANGE;
 
-    let mut bw = BufWriter::new(stdout());
+    let mut bw = BufWriter::new(io::stdout());
 
     let reader = BufReader::new(r);
     for (mut read_line, line) in reader.lines().enumerate() {
